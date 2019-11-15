@@ -12,6 +12,7 @@ const port = process.env.PORT || 5000;
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
+// Heroku fix for mlab addon
 const db = process.env.MONGODB_URI || require('./config/keys').mongoURI;
 mongoose.connect(db, { useNewUrlParser: true }).then(() => console.log('MongoDB connected')).catch((err) => console.log(err));
 
@@ -20,6 +21,7 @@ require('./config/passport')(passport);
 
 app.use('/api/users', users);
 
+// Heroku fix to serve the build react app
 if(process.env.NODE_ENV === 'production'){
     app.use(express.static('client/build'));
     app.get("*", (req, res) => {
