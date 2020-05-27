@@ -281,14 +281,14 @@ router.post('/login', (req, res) => {
                 Cat
             });
 
-            newDef.save()
+            newLib.save()
             .then(user => res.json(user))
             .catch(err => res.send(err));
         });
 
         //Update a library document url
         router.put('/liburl', (req, res)=>{
-            const _id = req.body._id;
+            const _id = req.body.libId;
             const libURL = req.body.libURL;
             Lib.updateOne({_id}, {$set:{libURL}}, (err, result)=>{
                 if(err) return res.send(err);
@@ -298,7 +298,7 @@ router.post('/login', (req, res) => {
 
         //Update a library document type
         router.put('/libtype', (req, res)=>{
-            const _id = req.body._id;
+            const _id = req.body.libId;
             const libType = req.body.libType;
             Lib.updateOne({_id}, {$set:{libType}}, (err, result)=>{
                 if(err) return res.send(err);
@@ -313,6 +313,15 @@ router.post('/login', (req, res) => {
                 if(err) return res.send(err);
                 res.send(result);
             });
+        });
+
+        //Get one library document by id
+        router.get('/lib', (req, res)=>{
+            const _id = req.body.libId;
+            Lib.find({_id}, (err, data)=>{
+                if(err) return res.send(err);
+                res.send(data)
+            })
         });
 
         //Get all video library documents
@@ -339,8 +348,6 @@ router.post('/login', (req, res) => {
                 res.send(result);
             });
         });
-
-
 
     }); // end post scope for login
 }); // end scope login

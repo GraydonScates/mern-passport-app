@@ -7,7 +7,7 @@ const LibSchema = new Schema ({
         type:String,
         required: true,
         uppercase:true,
-        maxlength: 20,
+        maxlength: 1023,
         minlength: 2
     },
     libType:{
@@ -18,8 +18,10 @@ const LibSchema = new Schema ({
     libURL:{
         type: String,
         validate: {
-            validator: v => validator.isURL(v, { protocols: ['http','https','ftp'], require_tld: true, require_protocol: true }),
-            message: 'Must be a Valid URL' 
+            validator: function(v) {
+                return /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/.test(v)
+          },
+          message: props => `${props.value} invalid URL`
         }
 
     },
