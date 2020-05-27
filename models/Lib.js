@@ -3,18 +3,25 @@ const timestamps = require('mongoose-timestamp')
 const Schema = mongoose.Schema;
 
 const LibSchema = new Schema ({
-    LibName: {
+    libName: {
         type:String,
         required: true,
+        uppercase:true,
         maxlength: 20,
         minlength: 2
     },
-    LibType:{
+    libType:{
         type: String,
-        enum: ['text', 'video']
+        enum: ['TEXT', 'VIDEO'],
+        default: 'TEXT'
     },
-    LibURL:{
-        type: String
+    libURL:{
+        type: String,
+        validate: {
+            validator: v => validator.isURL(v, { protocols: ['http','https','ftp'], require_tld: true, require_protocol: true }),
+            message: 'Must be a Valid URL' 
+        }
+
     },
     Cat:[
         {type:Schema.Types.ObjectId, ref: 'Cat'},

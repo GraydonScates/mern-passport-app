@@ -57,7 +57,7 @@ const UserSchema = new Schema({
             validator: function(v){
                 return /\d/.test(v);
             },
-            message: props=>`${props.value} invalid zip`
+            message: `${v} invalid zip`
         }
     },
     phone: {

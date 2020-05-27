@@ -253,9 +253,8 @@ router.post('/login', (req, res) => {
             Def.deleteOne({_id}, (err,result)=>{
                 if(err) return res.send(err);
                 res.send(result);
-            })
-
-        })
+            });
+        });
 
         //Get all user's definitions
         router.get('/alldef', (req, res)=>{
@@ -265,6 +264,83 @@ router.post('/login', (req, res) => {
                 res.send(result);
             });
         });
+
+        //Add a library document
+        router.post('/lib', (req, res)=>{
+            const libName = req.body.libName;
+            const libType = req.body.libType;
+            const libURL = req.body.libURL
+            const User = user.id;
+            const Cat = req.body.catId;
+
+            const newLib = new Lib({
+                libName,
+                libType,
+                libURL,
+                User,
+                Cat
+            });
+
+            newDef.save()
+            .then(user => res.json(user))
+            .catch(err => res.send(err));
+        });
+
+        //Update a library document url
+        router.put('/liburl', (req, res)=>{
+            const _id = req.body._id;
+            const libURL = req.body.libURL;
+            Lib.updateOne({_id}, {$set:{libURL}}, (err, result)=>{
+                if(err) return res.send(err);
+                res.send(result);
+            });
+        });
+
+        //Update a library document type
+        router.put('/libtype', (req, res)=>{
+            const _id = req.body._id;
+            const libType = req.body.libType;
+            Lib.updateOne({_id}, {$set:{libType}}, (err, result)=>{
+                if(err) return res.send(err);
+                res.send(result);
+            });
+        });
+
+        // Get all library documents for a logged in user
+        router.get('/alllib', (req, res)=>{
+            const User = user.id;
+            Lib.find({User}, (err, result)=>{
+                if(err) return res.send(err);
+                res.send(result);
+            });
+        });
+
+        //Get all video library documents
+        router.get('/allvidlib', (req, res)=>{
+            Lib.find({$and:[{User:user.id}, {libType:'VIDEO'}]}, (err, data)=>{
+                if(err) return res.send(err);
+                res.send(data)
+            })
+        });
+
+        // get all text library documents
+        router.get('/alltextlib', (req, res)=>{
+            Lib.find({$and:[{User:user.id}, {libType:'TEXT'}]}, (err, data)=>{
+                if(err) return res.send(err);
+                res.send(data)
+            })
+        });
+
+        // Delete a library document
+        router.delete('/lib', (req, res)=>{
+            const _id = req.body.libId;
+            Lib.deleteOne({_id}, (err,result)=>{
+                if(err) return res.send(err);
+                res.send(result);
+            });
+        });
+
+
 
     }); // end post scope for login
 }); // end scope login
