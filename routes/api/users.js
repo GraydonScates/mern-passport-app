@@ -92,62 +92,181 @@ router.post('/login', (req, res) => {
         console.log("new user payload")
         console.log(user)
 
-// Add Category
-router.post('/newcat', (req, res) => {
-
-    const catName = req.body.catName;
-    
-    Cat.findOne({ catName }).then(cat => {
-        if(cat) return res.status(400).json({ catName: "Category already exists" });
-
-        const newCat = new Cat({
-            catName
+        // Add Category, categories are unique
+        router.post('/cat', (req, res) => {
+            const catName = req.body.catName;
+            Cat.findOne({ catName }).then(cat => {
+                if(cat) return res.status(400).json({ catName: "Category already exists" });
+                const newCat = new Cat({
+                    catName
+                });
+                newCat.save()
+                .then(cat => res.json(cat))
+                .catch(err => console.log(err));
+            
+            });
         });
-    
-        newCat.save()
-        .then(cat => res.json(cat))
-        .catch(err => console.log(err));
-    
-    });
-});
 
-// Find All Categories
-router.get('/allcat', (req, res) => {
-    Cat.find({}).then(function(data) {res.send(data)})
-    .catch(err => console.log(err))
-});
+        // Find All Categories
+        router.get('/allcat', (req, res) => {
+            Cat.find({}).then(function(data) {res.send(data)})
+            .catch(err => console.log(err))
+        });
 
-// Delete A Category by name
-router.delete('/delCatName', (req, res)=>{
-    catName = req.body.catName;
-    Cat.deleteOne({catName}, (err, result) =>{
-        if(err) return res.send(err)
-        res.send(result)
-    });
-});
+        //Find Category by name (can get id from this)
+        router.get('/catbyname', (req, res)=>{
+            const catName = req.body.catName;
+            Cat.findOne({catName}, (err, result)=>{
+                if(err) return res.send(err);
+                res.send(result)
+            })
+        })
 
-// Delete a Category by id
-router.delete('/delCatId', (req, res)=>{
-    _id = req.body._id;
-    Cat.findByIdAndDelete({_id}, (err, result) =>{
-        if(err) return res.send(err)
-        res.send(result)
-    });
-});
+        // Delete A Category by name
+        router.delete('/delCatName', (req, res)=>{
+            const catName = req.body.catName;
+            Cat.deleteOne({catName}, (err, result) =>{
+                if(err) return res.send(err)
+                res.send(result)
+            });
+        });
 
-/* router.get('/getid', (req, res)=>{
-    email = req.email;
-    console.log(email);
-    User.findOne({ email }, (err, result)=>{
-        console.log(result);
-        if(err) return res.send(err);
-        res.send(result._id);
-    })
-}) */
+        // Delete a Category by id
+        router.delete('/cat', (req, res)=>{
+            const _id = req.body._id;
+            Cat.findByIdAndDelete({_id}, (err, result) =>{
+                if(err) return res.send(err)
+                res.send(result)
+            });
+        });
 
+        //Add a Skill
+        router.post('/skill', (req, res)=>{
+            const skillsName = req.body.skillsName;
+            const User = user.id;
+            const Cat = req.body.catId;
 
+            console.log(User, skillsName, Cat);
 
-}); // end post scope for login
+            const newSkill = new Skills({
+                skillsName,
+                Cat,
+                User
+            });
+
+            newSkill.save()
+            .then(user => res.json(user))
+            .catch(err => res.send(err));
+        });
+
+        //Get all skills by user
+        router.get('/skill', (req, res)=>{
+            Skills.find({User:user.id}).then(function(data) {res.send(data)})
+            .catch(err => res.send(err))
+        });
+
+        //Delete a skill by id
+        router.delete('/skill', (req, res)=>{
+            const _id = req.body.skillId;
+            Skills.deleteOne({_id}, (err, result) =>{
+                if(err) return res.send(err)
+                res.send(result)
+            });
+        });
+
+        //Master a skill by id
+        router.put('/skill', (req, res)=>{
+            const _id = req.body._id;
+            Skills.updateOne({_id}, {$set:{Master:true}}, (err, result)=>{
+                if(err) return res.send(err);
+                res.send(result);
+            });
+        });
+
+        //Unmaster a skill
+        router.put('/unskill', (req, res)=>{
+            const _id = req.body._id;
+            Skills.updateOne({_id}, {$set:{Master:false}}, (err, result)=>{
+                if(err) return res.send(err);
+                res.send(result);
+            });
+        });
+
+        //Get all mastered skills
+        router.get('/allmasteredskill', (req, res)=>{
+
+            Skills.find({$and:[{User:user.id}, {Master:true}]}, (err, data)=>{
+                if(err) return res.send(err);
+                res.send(data)
+            })
+        });
+
+        //Get all unmastered skills
+        router.get('/allunmasteredskill', (req, res)=>{
+            Skills.find({$and:[{User:user.id}, {Master:false}]}, (err, data)=>{
+                if(err) return res.send(err);
+                res.send(data)
+            })
+        });
+
+        //New Definition
+        router.post('/def', (req, res)=>{
+            const defName = req.body.defName;
+            const defText = req.body.defText;
+            const User = user.id;
+            const Cat = req.body.catId;
+
+            const newDef = new Def({
+                defName,
+                defText,
+                Cat,
+                User
+            });
+
+            newDef.save()
+            .then(user => res.json(user))
+            .catch(err => res.send(err));
+        });
+
+        //Update Def Text
+        router.put('/def', (req, res)=>{
+            const _id = req.body.defId;
+            const defText = req.body.defText;
+            Def.updateOne({_id}, {$set:{defText}}, (err, result)=>{
+                if(err) return res.send(err);
+                res.send(result);
+            });
+        })
+
+        // Get one definition
+        router.get('/def', (req, res)=>{
+            const _id = req.body.defId;
+            Def.find({_id}, (err, result)=>{
+                if(err) return res.send(err);
+                res.send(result); 
+            });
+        });
+
+        // Delete one definition
+        router.delete('/def', (req, res)=>{
+            const _id = req.body.defId;
+            Def.deleteOne({_id}, (err,result)=>{
+                if(err) return res.send(err);
+                res.send(result);
+            })
+
+        })
+
+        //Get all user's definitions
+        router.get('/alldef', (req, res)=>{
+            const User = user.id;
+            Def.find({User}, (err, result)=>{
+                if(err) return res.send(err);
+                res.send(result);
+            });
+        });
+
+    }); // end post scope for login
 }); // end scope login
 
 module.exports = router;

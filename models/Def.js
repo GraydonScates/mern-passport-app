@@ -3,15 +3,15 @@ const timestamps = require('mongoose-timestamp');
 const Schema = mongoose.Schema;
 
 const DefSchema = new Schema ({
-    DefTerm: {
+    defName: {
         type:String,
         required: true,
-        maxlength: 20,
+        maxlength: 50,
         minlength: 2
     },
-    DefText: {
+    defText: {
         type: String,
-        maxlength: 255
+        maxlength: 1023
     },
     Cat:[
         {type:Schema.Types.ObjectId, ref: 'Cat'},

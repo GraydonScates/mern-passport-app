@@ -3,14 +3,16 @@ const timestamps = require('mongoose-timestamp');
 const Schema = mongoose.Schema;
 
 const SkillsSchema = new Schema ({
-    SkillsName: {
+    skillsName: {
         type:String,
         required: true,
-        maxlength: 20,
+        maxlength: 255,
         minlength: 2
     },
     Master:{
-        type: Boolean
+        type: Boolean,
+        required: true,
+        default: false
     },
     Cat:[
         {type:Schema.Types.ObjectId, ref: 'Cat'},
