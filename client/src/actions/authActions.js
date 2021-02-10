@@ -1,7 +1,7 @@
 import axios from 'axios';
 import setAuthToken from '../utils/setAuthToken';
 import jwt_decode from 'jwt-decode';
-import { GET_ERRORS, SET_CURRENT_USER, USER_LOADING } from './types';
+import { GET_ERRORS, SET_CURRENT_USER, USER_LOADING, PASSWORD_RESET } from './types';
 
 export const setCurrentUser = decoded => {
     return {
@@ -23,11 +23,32 @@ export const setErrors = err => {
     };
 };
 
+export const setPasswordReset = res => {
+    return {
+        type: PASSWORD_RESET,
+        payload: res.data
+    };
+};
+
+export const forgotPassword = data => dispatch => {
+    dispatch(setErrors({ response: { data: {} } }));
+    dispatch(setUserLoading(true));
+    axios.post('/api/users/forgotpassword', data).then(res => {
+        dispatch(setUserLoading(false));
+        dispatch(setPasswordReset(res));
+    }).catch(err => {
+        dispatch(setUserLoading(false));
+        dispatch(setErrors(err));
+    });
+};
+
 export const registerUser = (userData, history) => dispatch => {
+    dispatch(setErrors({ response: { data: {} } }));
     axios.post('/api/users/register', userData).then(res => history.push("/login")).catch(err => dispatch(setErrors(err)));
 };
 
-export const loginUser = userData => dispatch => {
+export const loginUser = (userData, history) => dispatch => {
+    dispatch(setErrors({ response: { data: {} } }));
     axios.post('/api/users/login', userData).then(res => {
         const { token } = res.data;
         
@@ -36,6 +57,7 @@ export const loginUser = userData => dispatch => {
 
         const decoded = jwt_decode(token);
         dispatch(setCurrentUser(decoded));
+        history.push("/");
     }).catch(err => dispatch(setErrors(err)));
 };
 
