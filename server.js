@@ -1,6 +1,7 @@
+require('dotenv').config();
+
 const express = require('express');
 const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
 const passport = require('passport');
 const path = require('path');
 
@@ -9,12 +10,12 @@ const users = require('./routes/api/users');
 const app = express();
 const port = process.env.PORT || 5000;
 
-app.use(bodyParser.urlencoded({extended: false}));
-app.use(bodyParser.json());
+app.use(express.urlencoded({extended: false}));
+app.use(express.json());
 
 // Heroku fix for mlab addon
-const db = process.env.MONGODB_URI || require('./config/keys').mongoURI;
-mongoose.connect(db, { useNewUrlParser: true }).then(() => console.log('MongoDB connected')).catch((err) => console.log(err));
+const db = process.env.MONGODB_URI || `mongodb://localhost:27017/${process.env.DB}`;
+mongoose.connect(db, { useNewUrlParser: true, useUnifiedTopology: true }).then(() => console.log('MongoDB connected')).catch((err) => console.log(err));
 
 app.use(passport.initialize());
 require('./config/passport')(passport);

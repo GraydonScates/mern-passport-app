@@ -1,21 +1,23 @@
 import React, { useEffect, useContext } from 'react';
+import { useHistory } from 'react-router-dom';
 import { Store } from '../../store';
 import { logoutUser } from '../../actions/authActions';
 
 import API from '../../utils/apiHelper';
 
-const Dashboard = props => {
-    const {state} = useContext(Store);
+const Dashboard = () => {
+    const history = useHistory();
+    const { state, dispatch } = useContext(Store);
     const user = state.auth.user;
 
     useEffect(() => {
-        if(!state.auth.isAuthenticated) props.history.push("/login");
-        API.getUsers().then(res => console.log(res)).catch(err => console.log(err));
-    }, [state, props]);
+        if(!state.auth.isAuthenticated) history.push("/login");
+        API.getUser().then(res => res.json()).then(res => console.log(res)).catch(err => console.log(err));
+    }, [state, history]);
 
     const onLogoutClick = e => {
         e.preventDefault();
-        logoutUser();
+        logoutUser(history)(dispatch);
     }
 
     return (

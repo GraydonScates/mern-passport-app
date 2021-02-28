@@ -7,12 +7,13 @@ import { Store } from './store';
 
 import './App.css';
 
-import Navbar from './components/layout/Navbar';
-import Landing from './components/layout/Landing';
-import Register from './components/auth/Register';
-import Login from './components/auth/Login';
-import PrivateRoute from './components/private-route/PrivateRoute';
-import Dashboard from './components/dashboard/Dashboard';
+import PrivateRoute from './components/auth/PrivateRoute';
+import Navbar from './components/partials/Navbar';
+import Footer from './components/partials/Footer';
+import Landing from './components/pages/Landing';
+import Register from './components/pages/Register';
+import Login from './components/pages/Login';
+import Dashboard from './components/pages/Dashboard';
 
 const App = () => {
     const {dispatch} = useContext(Store);
@@ -43,6 +44,7 @@ const App = () => {
                 <Switch>
                     <PrivateRoute exact path="/dashboard" component={Dashboard} />
                 </Switch>
+                <Footer />
             </div>
         </Router>
     );

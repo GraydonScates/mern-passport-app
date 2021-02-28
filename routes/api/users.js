@@ -2,12 +2,18 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const keys = require('../../config/keys');
 
 const validateRegisterInput = require('../../validation/register');
 const validateLoginInput = require('../../validation/login');
+const requiresAuth = require('../../config/requiresAuth');
 
 const User = require('../../models/User');
+
+router.get('/me', requiresAuth, (req, res) => {
+    User.findById(req.user._id).then(user => {
+        if(user) return res.json({ name: user.name, email: user.email });
+    }).catch(err => res.json({ error: err.message }));
+});
 
 router.post('/register', (req, res) => {
     const { errors, isValid } = validateRegisterInput(req.body);
@@ -57,7 +63,7 @@ router.post('/login', (req, res) => {
                 name: user.name
             };
 
-            jwt.sign(payload, keys.cypher, { expiresIn: 31556926 }, (err, token) => {
+            jwt.sign(payload, process.env.CYPHER, { expiresIn: 31556926 }, (err, token) => {
                 if(err) return res.status(400).json({ tokenerror: "There was a problem updating your security token" });
                 
                 res.json({

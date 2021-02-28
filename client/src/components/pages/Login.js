@@ -1,18 +1,19 @@
 import React, { useEffect, useRef, useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import { Store } from '../../store';
 import { loginUser, setErrors } from '../../actions/authActions';
 import classnames from 'classnames';
 
-const Login = props => {
+const Login = () => {
+    const history = useHistory();
     const {state, dispatch} = useContext(Store);
     const errors = state.error;
     const emailRef = useRef();
     const passwordRef = useRef();
 
     useEffect(() => {
-        if(state.auth.isAuthenticated) props.history.push("/dashboard");
-    }, [state, props]);
+        if(state.auth.isAuthenticated) history.push("/dashboard");
+    }, [state, history]);
 
     const onSubmit = e => {
         e.preventDefault();
@@ -25,7 +26,7 @@ const Login = props => {
         };
 
         // console.log(userData);
-        loginUser(userData, props.history)(dispatch);
+        loginUser(userData, history)(dispatch);
     }
 
     return (
@@ -45,14 +46,14 @@ const Login = props => {
                     </div>
                     <form noValidate onSubmit={onSubmit}>
                         <div className="input-field col s12">
-                            <input inputRef={emailRef} value="" error={errors.incorrect} name="email" type="email" className={classnames("", { invalid: errors.incorrect })} />
+                            <input ref={emailRef} error={errors.incorrect} name="email" type="email" className={classnames("", { invalid: errors.incorrect })} />
                             <label htmlFor="email">Email</label>
                             <span className="red-text">
                                 {errors.incorrect}
                             </span>
                         </div>
                         <div className="input-field col s12">
-                            <input inputRef={passwordRef} value="" error={errors.incorrect} name="password" type="password" className={classnames("", { invalid: errors.incorrect })} />
+                            <input ref={passwordRef} error={errors.incorrect} name="password" type="password" className={classnames("", { invalid: errors.incorrect })} />
                             <label htmlFor="password">Password</label>
                         </div>
                         <div className="col s12" style={{ paddingLeft: "11.250px" }}>

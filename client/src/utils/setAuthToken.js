@@ -1,11 +1,8 @@
-import axios from 'axios';
+import API from './apiHelper';
 
 const setAuthToken = token => {
-    if(token){
-        axios.defaults.headers.common["Authorization"] = token;
-    }else{
-        delete axios.defaults.headers.common["Authorization"];
-    }
+    if(token) return API.config.headers.Authorization = `${token}`;
+    API.config.headers.Authorization = undefined;
 };
 
 export default setAuthToken;

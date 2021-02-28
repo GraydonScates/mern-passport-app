@@ -1,7 +1,7 @@
-import axios from 'axios';
 import setAuthToken from '../utils/setAuthToken';
 import jwt_decode from 'jwt-decode';
 import { GET_ERRORS, SET_CURRENT_USER, USER_LOADING, PASSWORD_RESET } from './types';
+import API from '../utils/apiHelper';
 
 export const setCurrentUser = decoded => {
     return {
@@ -19,50 +19,79 @@ export const setUserLoading = () => {
 export const setErrors = err => {
     return {
         type: GET_ERRORS,
-        payload: err.response.data
+        payload: err
     };
 };
 
 export const setPasswordReset = res => {
     return {
         type: PASSWORD_RESET,
-        payload: res.data
+        payload: res
     };
 };
 
-export const forgotPassword = data => dispatch => {
-    dispatch(setErrors({ response: { data: {} } }));
+export const forgotPassword = userData => async dispatch => {
+    dispatch(setErrors({}));
     dispatch(setUserLoading(true));
-    axios.post('/api/users/forgotpassword', data).then(res => {
-        dispatch(setUserLoading(false));
-        dispatch(setPasswordReset(res));
-    }).catch(err => {
+    try{
+        const res = await API.forgotPassword(userData);
+        const data = res.json();
+        console.log(data);
+        if(res.ok){
+            dispatch(setUserLoading(false));
+            dispatch(setPasswordReset(data));
+        }else{
+
+        }
+    }catch(err){
         dispatch(setUserLoading(false));
         dispatch(setErrors(err));
-    });
+    }
 };
 
-export const registerUser = (userData, history) => dispatch => {
-    dispatch(setErrors({ response: { data: {} } }));
-    axios.post('/api/users/register', userData).then(res => history.push("/login")).catch(err => dispatch(setErrors(err)));
+export const registerUser = (userData, history) => async dispatch => {
+    dispatch(setErrors({}));
+    try{
+        const res = await API.registerUser(userData);
+        const data = await res.json();
+        console.log(data);
+        if(res.ok){
+            history.push("/login");
+        }else{
+            dispatch(setErrors(data));
+        }
+    }catch(err) {
+        dispatch(setErrors(err));
+    }
 };
 
-export const loginUser = (userData, history) => dispatch => {
-    dispatch(setErrors({ response: { data: {} } }));
-    axios.post('/api/users/login', userData).then(res => {
-        const { token } = res.data;
-        
-        localStorage.setItem("jwtToken", token);
-        setAuthToken(token);
+export const loginUser = (userData, history) => async dispatch => {
+    dispatch(setErrors({}));
+    try{
+        const res = await API.loginUser(userData);
+        const data = await res.json();
+        console.log(data);
+        if(res.ok){
+            const { token } = data;
+            
+            localStorage.setItem("jwtToken", token);
+            setAuthToken(token);
 
-        const decoded = jwt_decode(token);
-        dispatch(setCurrentUser(decoded));
-        history.push("/");
-    }).catch(err => dispatch(setErrors(err)));
+            const decoded = jwt_decode(token);
+            dispatch(setCurrentUser(decoded));
+            history.push("/");
+        }else{
+            dispatch(setErrors(data));
+        }
+    }catch(err){
+        dispatch(setErrors(err));
+    }
 };
 
-export const logoutUser = () => dispatch => {
+export const logoutUser = history => dispatch => {
     localStorage.removeItem("jwtToken");
     setAuthToken(false);
+
     dispatch(setCurrentUser({}));
+    history.push("/");
 };

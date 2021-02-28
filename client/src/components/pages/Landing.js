@@ -1,10 +1,7 @@
-import React, { useContext } from 'react';
-import { Store } from '../../store';
+import React from 'react';
 import { Link } from 'react-router-dom';
 
-const Landing = props => {
-    const {state} = useContext(Store);
-    console.log(state);
+const Landing = () => {
     return (
         <div className="container valign-wrapper" style={{ height: "75vh" }}>
             <div className="row">
